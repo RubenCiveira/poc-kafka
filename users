@@ -1,0 +1,12 @@
+# topic my_compacted_topic
+docker exec -it kafka kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic my_compacted_topic --config cleanup.policy=compact
+
+# usaurio admintest:nimadtset
+docker exec -it kafka kafka-configs --bootstrap-server localhost:9092 --alter --add-config 'SCRAM-SHA-256=[password=nimadtset]' --entity-type users --entity-name admintest
+# usuario testuser:reustset
+docker exec -it kafka kafka-configs --bootstrap-server localhost:9092 --alter --add-config 'SCRAM-SHA-256=[password=reustset]' --entity-type users --entity-name testuser
+
+# Autoriza a admintest a escribir en my_compacted_topic
+docker exec -it kafka kafka-acls --add --allow-principal User:admintest --operation Write --topic my_compacted_topic --bootstrap-server localhost:29092
+# Autoriza a testuser a escribir en my_compacted_topic
+docker exec -it kafka kafka-acls --add --allow-principal User:testuser --operation Read --topic my_compacted_topic --group '*' --bootstrap-server localhost:9092
