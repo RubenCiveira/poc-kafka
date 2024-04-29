@@ -1,9 +1,5 @@
 package org.example;
 
-import org.eclipse.microprofile.reactive.messaging.Channel;
-import org.eclipse.microprofile.reactive.messaging.Emitter;
-import org.eclipse.microprofile.reactive.messaging.Message;
-import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -15,15 +11,16 @@ import jakarta.ws.rs.core.MediaType;
 public class HelloResource {
 
   @Inject
-  @Channel("hello-channel")
-  Emitter<String> emitter;
+  private final Sender sender;
+
+  public HelloResource(Sender sender) {
+    this.sender = sender;
+  }
 
   @GET
   @Produces(MediaType.TEXT_PLAIN)
   public String hello(@QueryParam("key") String key, @QueryParam("val") String val) {
-    emitter.send( Message.of(val).addMetadata(OutgoingKafkaRecordMetadata.<String>builder()
-        .withKey(key)
-        .build()) );
+    sender.send(key, val);
     return "Message sent to Kafka!";
   }
 }
